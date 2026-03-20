@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" href="bootstrap-5.3.8-dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: rgba(29, 33, 37, 0.95);
+            padding-top: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-header {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 14px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            word-break: break-word;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 8px 14px;
+            margin: 2px 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, #4f46e5, #3730a3);
+            color: #fff;
+        }
+
+        #cartCount {
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 50px;
+            flex-shrink: 0;
+        }
+
+        #contentArea {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        canvas {
+            max-height: 260px !important;
+            width: 100% !important;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                position: relative;
+                height: auto;
+                max-height: 260px;
+            }
+
+            .sidebar .nav-link {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row flex-nowrap min-vh-100">
+
+            <!-- ================= SIDEBAR ================= -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="sidebar-header text-center" id="sideHeader"></div>
+
+                <ul class="nav flex-column mt-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="dashboardLink" href="#">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#requestStockModal">
+                            <i class="bi bi-cart-plus me-2"></i>Request Stock
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#" id="cart-link" class="nav-link d-flex align-items-center">
+                            <i class="bi bi-cart3 me-2"></i>Cart
+                            <span class="badge bg-danger ms-auto" id="cartCount">0</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="viewRequestsLink">
+                            <i class="bi bi-clipboard-check me-2"></i>View Requests
+                        </a>
+                    </li>
+
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-danger" id="logOut">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+            <!-- ================= CONTENT ================= -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div id="contentArea"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="requestStockModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="staffRequestProductStockForm">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Request Stock</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="select-supplier" class="form-label">Supplier</label>
+                            <select id="select-supplier" class="form-select" required>
+                                <option value="">Select Supplier</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="request-product-name" class="form-label">Product</label>
+                            <select id="request-product-name" class="form-select" required>
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="request-unit-price" class="form-label">Unit Price</label>
+                            <input type="number" id="request-unit-price" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="request-stocks" class="form-label">Quantity</label>
+                            <input type="number" id="request-stocks" class="form-control" min="1" required>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- CART MODAL -->
+    <div class="modal fade" id="cartModal">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Cart</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <table class="table">
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="cartTable"></tbody>
+
+                    </table>
+
+                    <h5 class="text-end">
+                        Total: ₱<span id="cartTotal">0</span>
+                    </h5>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button id="checkoutBtn" class="btn btn-success">
+                        Send Request
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script src="jquery.js"></script>
+    <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/Class/User.js"></script>
+    <script src="/Class/Product.js"></script>
+    <script src="/Class/ProductStorage.js"></script>
+    <script src="/Class/SupplierStock.js"></script>
+    <script src="/Class/SupplierStockStorage.js"></script>
+    <script src="Staff-page.js"></script>
+
+</body>
+
+</html>
