@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Dashboard</title>
+
+  <link rel="stylesheet" href="bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: rgba(29, 33, 37, 0.95);
+      padding-top: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-header {
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 14px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      word-break: break-word;
+    }
+
+    .sidebar .text-secondary {
+      font-size: 10px;
+      margin: 8px 12px 2px;
+      color: rgba(255, 255, 255, 0.4) !important;
+      letter-spacing: .5px;
+    }
+
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.75);
+      padding: 8px 14px;
+      margin: 2px 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar .nav-link i {
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .sidebar .nav-link:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .sidebar .nav-link.active {
+      background: linear-gradient(135deg, #4f46e5, #3730a3);
+      color: #fff;
+    }
+
+    #notifCount {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 50px;
+      flex-shrink: 0;
+    }
+
+    #contentArea {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 767px) {
+      .sidebar {
+        position: relative;
+        height: auto;
+        max-height: 260px;
+      }
+
+      .sidebar .nav-link {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container-fluid">
+    <div class="row flex-nowrap min-vh-100">
+
+      <!-- ================= SIDEBAR ================= -->
+      <div class="col-md-3 col-lg-2 sidebar p-0">
+
+        <div class="sidebar-header text-center" id="sideHeader"></div>
+
+        <ul class="nav flex-column mt-2">
+
+          <li class="nav-item">
+            <a class="nav-link active" id="dashboardLink">
+              <i class="bi bi-speedometer2 me-2"></i>
+              Dashboard
+            </a>
+          </li>
+
+          <li class="nav-item mt-3 px-3 text-uppercase small text-secondary">
+            Stock Management
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" id="viewStocksLink">
+              <i class="bi bi-box-seam me-2"></i>
+              View Stocks
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" id="addStockLink">
+              <i class="bi bi-plus-square me-2"></i>
+              Add Stock
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" id="requestNotifLink">
+              <i class="bi bi-bell me-2"></i>
+              Request Notifications
+              <span class="badge bg-danger ms-auto" id="notifCount">0</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" id="transactionHistoryLink">
+              <i class="bi bi-clock-history me-2"></i>
+              Transaction History
+            </a>
+          </li>
+
+          <li class="nav-item mt-3">
+            <a class="nav-link text-danger" id="logOut">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Logout
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <!-- ================= CONTENT ================= -->
+      <div class="col-md-9 col-lg-10 p-4">
+
+        <div id="contentArea">
+          <div id="stockTableContainer" class="mt-4"></div>
+
+          <div class="text-center mt-5">
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add Supplier Stock Modal -->
+  <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addStockModalLabel">Add Supplier Stock</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addSupplierStockForm">
+            <div class="mb-3">
+              <label for="supplier-product-name" class="form-label">Product Name</label>
+              <input type="text" class="form-control" id="supplier-product-name" required>
+            </div>
+            <div class="mb-3">
+              <label for="supplier-product-description" class="form-label">Description</label>
+              <textarea class="form-control" id="supplier-product-description" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="supplier-product-price" class="form-label">Price</label>
+              <input type="number" step="0.01" class="form-control" id="supplier-product-price" required>
+            </div>
+            <div class="mb-3">
+              <label for="supplier-product-stock" class="form-label">Stock Quantity</label>
+              <input type="number" class="form-control" id="supplier-product-stock" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add Stock</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="jquery.js"></script>
+  <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/Class/Product.js"></script>
+  <script src="/Class/ProductStorage.js"></script>
+  <script src="/Class/SupplierStock.js"></script>
+  <script src="/Class/SupplierStockStorage.js"></script>
+  <script src="Supplier-page.js"></script>
+
+</body>
+
+</html>
